@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.shortformsselfassessment.controllers
+package uk.gov.hmrc.shortformsselfassessment.config
 
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers.mustBe
+import org.scalatest.matchers.should.Matchers
+import play.api.Configuration
 
-import javax.inject.{Inject, Singleton}
+class AppConfigSpec extends AnyFreeSpec with Matchers {
 
-@Singleton()
-class MicroserviceHelloWorldController @Inject()(
-  cc: ControllerComponents
-) extends BackendController(cc):
+  "AppConfig" - {
+    "should read appName from configuration" in {
 
-  val hello: Action[AnyContent] =
-    Action:
-      implicit request =>
-        Ok("Hello world")
+      val config = Configuration(
+        "appName" -> "shortforms-self-assessment"
+      )
+
+      val appConfig = new AppConfig(config)
+
+      appConfig.appName mustBe "shortforms-self-assessment"
+    }
+  }
+}
