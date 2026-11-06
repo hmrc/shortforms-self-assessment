@@ -27,9 +27,9 @@ import java.time.LocalDate
 class SA1RequestSpec extends AnyWordSpec with Matchers {
 
   "SA1ResponsePec" should {
-      "must parse a valid SA1Controller request" in {
-        val json = Json.parse(
-          """
+    "must parse a valid SA1Controller request" in {
+      val json = Json.parse(
+        """
                  {
                     "title2" : "Mrs",
                     "firstName": "Sherlock",
@@ -52,36 +52,36 @@ class SA1RequestSpec extends AnyWordSpec with Matchers {
                     "personCompletingForm": "Sherlock Holmes"
                     }
                """
-        )
+      )
 
-        json.validate[SA1Request] mustBe JsSuccess(
-          SA1Request(
-            title2 = Some("Mrs"),
-            firstName = "Sherlock",
-            lastName = "Holmes",
-            previousLastName = None,
-            niNumber = Some("AA123456B"),
-            niNoReason = None,
-            dob = LocalDate.parse("1854-01-01"),
-            address = Address(
-              line1 = "221B Baker Street",
-              line2 = "London",
-              postcode = "NW1 6XE"
-            ),
-            moveToAddressOn = LocalDate.parse("1887-01-01"),
-            phone = "07 123 456 789",
-            email = "sherlock.holmes@consultingdetective.com",
-            reasons = SelfAssessmentReasons(
-              companyDirectorSince = Some(LocalDate.parse("1889-01-01")),
-              otherReason = Some("I am making self-invested pension contributions"),
-              otherReasonAppliesSince = Some(LocalDate.parse("1888-06-01"))
-            ),
-            personCompletingForm = Some("Sherlock Holmes"),
-          )
+      json.validate[SA1Request] mustBe JsSuccess(
+        SA1Request(
+          title2 = Some("Mrs"),
+          firstName = "Sherlock",
+          lastName = "Holmes",
+          previousLastName = None,
+          niNumber = Some("AA123456B"),
+          niNoReason = None,
+          dob = LocalDate.parse("1854-01-01"),
+          address = Address(
+            line1 = "221B Baker Street",
+            line2 = "London",
+            postcode = "NW1 6XE"
+          ),
+          moveToAddressOn = LocalDate.parse("1887-01-01"),
+          phone = "07 123 456 789",
+          email = "sherlock.holmes@consultingdetective.com",
+          reasons = SelfAssessmentReasons(
+            companyDirectorSince = Some(LocalDate.parse("1889-01-01")),
+            otherReason = Some("I am making self-invested pension contributions"),
+            otherReasonAppliesSince = Some(LocalDate.parse("1888-06-01"))
+          ),
+          personCompletingForm = Some("Sherlock Holmes")
         )
-      }
+      )
+    }
 
-      "must fail when postcode is missing" in {
+    "must fail when postcode is missing" in {
       val json = Json.parse(
         """
                  {
@@ -108,9 +108,9 @@ class SA1RequestSpec extends AnyWordSpec with Matchers {
       json.validate[SA1Request] mustBe a[JsError]
     }
 
-      "must fail when phone and emails are missing" in {
-        val json = Json.parse(
-          """
+    "must fail when phone and emails are missing" in {
+      val json = Json.parse(
+        """
                        {
                           "title2" : "Mrs",
                           "firstName": "Sherlock",
@@ -134,7 +134,7 @@ class SA1RequestSpec extends AnyWordSpec with Matchers {
                      """
       )
 
-            json.validate[SA1Request] mustBe a[JsError]
+      json.validate[SA1Request] mustBe a[JsError]
     }
-    }
+  }
 }

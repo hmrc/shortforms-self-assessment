@@ -35,7 +35,7 @@ import scala.concurrent.Future
 class SA1ControllerSpec extends PlaySpec with MockitoSugar {
 
   val mockSubmissionService: SA1SubmissionService = mock[SA1SubmissionService]
-  val controller = new SA1Controller(stubControllerComponents(), mockSubmissionService)
+  val controller                                  = new SA1Controller(stubControllerComponents(), mockSubmissionService)
 
   val validJsonBody: JsValue = Json.parse(
     """
@@ -65,27 +65,27 @@ class SA1ControllerSpec extends PlaySpec with MockitoSugar {
   "SA1ControllerSpec" should {
     "return 400 Bad Request when the Journey-Id header is missing" in {
 
-      val request = FakeRequest("POST", "/submit")
+      val request                = FakeRequest("POST", "/submit")
         .withHeaders("Content-Type" -> "application/json")
         .withBody(validJsonBody)
       val result: Future[Result] = controller.submitSA1()(request)
 
       status(result) mustBe BAD_REQUEST
       contentAsJson(result) mustBe Json.obj(
-        "code" -> "MISSING Journey-ID",
+        "code"    -> "MISSING Journey-ID",
         "message" -> "The mandatory Journey-ID header is missing."
       )
     }
 
     "return 202 Accepted with a valid JSON and jouney id" in {
 
-      val testJourneyId = "test-jouney-id-12345"
-      val expectedGeneratedId = "SA1-XYZ987"
-      val request = FakeRequest("POST", "/submit")
-        .withHeaders("Content-Type" -> "application/json",
-          "Journey-ID" -> testJourneyId)
+      val testJourneyId          = "test-jouney-id-12345"
+      val expectedGeneratedId    = "SA1-XYZ987"
+      val request                = FakeRequest("POST", "/submit")
+        .withHeaders("Content-Type" -> "application/json", "Journey-ID" -> testJourneyId)
         .withBody(validJsonBody)
-      when(mockSubmissionService.processSubmission(any[SA1Request], mockEq(testJourneyId))).thenReturn(Future.successful(Right(expectedGeneratedId)))
+      when(mockSubmissionService.processSubmission(any[SA1Request], mockEq(testJourneyId)))
+        .thenReturn(Future.successful(Right(expectedGeneratedId)))
       val result: Future[Result] = controller.submitSA1()(request)
 
       status(result) mustBe ACCEPTED
@@ -99,29 +99,28 @@ class SA1ControllerSpec extends PlaySpec with MockitoSugar {
       val testJourneyId = "notfound-jouney-id-12345"
 
       val request = FakeRequest("POST", "/submit")
-        .withHeaders("Content-Type" -> "application/json",
-          "Journey-ID" -> testJourneyId)
+        .withHeaders("Content-Type" -> "application/json", "Journey-ID" -> testJourneyId)
         .withBody(validJsonBody)
 
-      when(mockSubmissionService.processSubmission(any[SA1Request], mockEq(testJourneyId))).thenReturn(Future.successful(Left("NOT_FOUND")))
+      when(mockSubmissionService.processSubmission(any[SA1Request], mockEq(testJourneyId)))
+        .thenReturn(Future.successful(Left("NOT_FOUND")))
 
       val result: Future[Result] = controller.submitSA1()(request)
 
       status(result) mustBe CONFLICT
       contentAsJson(result) mustBe Json.obj(
-        "code" -> "NOT_FOUND",
+        "code"    -> "NOT_FOUND",
         "message" -> "The request resource count not be found."
       )
     }
 
     "return 400 Bad Request for invalid Json" in {
 
-      val testJourneyId = "invalid-jouney-id-12345"
+      val testJourneyId            = "invalid-jouney-id-12345"
       val invalidJsonBody: JsValue = Json.obj("brokenField" -> "Invalid structure")
 
       val request = FakeRequest("POST", "/submit")
-        .withHeaders("Content-Type" -> "application/json",
-          "Journey-ID" -> testJourneyId)
+        .withHeaders("Content-Type" -> "application/json", "Journey-ID" -> testJourneyId)
         .withBody(invalidJsonBody)
 
       val result: Future[Result] = controller.submitSA1()(request)

@@ -21,10 +21,10 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class SA1SubmissionService @Inject(){
+class SA1SubmissionService @Inject() {
 
-  def processSubmission(request: SA1Request, journeyId: String): Future[Either[String, String]] =  
+  def processSubmission(request: SA1Request, journeyId: String): Future[Either[String, String]] =
     val referenceId = "SA1-" + java.util.UUID.randomUUID().toString.take(8).toUpperCase()
     Future.successful(Right(referenceId))
-  
+
 }

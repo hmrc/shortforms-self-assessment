@@ -21,17 +21,17 @@ import play.api.libs.json.*
 import java.time.LocalDate
 
 case class SelfAssessmentReasons(
-                                  companyDirectorSince: Option[LocalDate] = None,
-                                  dateLandPropertyUk: Option[LocalDate] = None,
-                                  taxableForeignIncomeDate: Option[LocalDate] = None,
-                                  dateAnnualIncome: Option[LocalDate] = None,
-                                  dateIncomeThresholds: Option[LocalDate] = None, //TODO
-                                  untaxedIncomeNotInPayeStartDate: Option[LocalDate] = None,
-                                  highIncomeChildBenefitDate: Option[LocalDate] = None,
-                                  dateCapitalGainsTax: Option[LocalDate] = None,
-                                  otherReason: Option[String] = None,
-                                  otherReasonAppliesSince: Option[LocalDate] = None
-                                )
+  companyDirectorSince: Option[LocalDate] = None,
+  dateLandPropertyUk: Option[LocalDate] = None,
+  taxableForeignIncomeDate: Option[LocalDate] = None,
+  dateAnnualIncome: Option[LocalDate] = None,
+  dateIncomeThresholds: Option[LocalDate] = None, // TODO
+  untaxedIncomeNotInPayeStartDate: Option[LocalDate] = None,
+  highIncomeChildBenefitDate: Option[LocalDate] = None,
+  dateCapitalGainsTax: Option[LocalDate] = None,
+  otherReason: Option[String] = None,
+  otherReasonAppliesSince: Option[LocalDate] = None
+)
 
 object SelfAssessmentReasons {
   implicit val format: OFormat[SelfAssessmentReasons] = Json.format[SelfAssessmentReasons]

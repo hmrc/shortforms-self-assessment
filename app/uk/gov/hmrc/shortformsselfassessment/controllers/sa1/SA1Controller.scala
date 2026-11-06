@@ -29,58 +29,74 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class SA1Controller @Inject()(
-                               cc: ControllerComponents,
-                               submissionService: SA1SubmissionService
-                             ) (implicit ec: ExecutionContext) extends BackendController(cc) with Logging {
+class SA1Controller @Inject() (
+  cc: ControllerComponents,
+  submissionService: SA1SubmissionService
+)(implicit ec: ExecutionContext)
+    extends BackendController(cc)
+    with Logging {
 
-  def submitSA1(): Action[JsValue] = Action.async(parse.json) {
-    implicit request =>
-      request.headers.get("Journey-ID") match {
+  def submitSA1(): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.headers.get("Journey-ID") match {
 
-        case Some(journeyId) =>
-          withJsonBody[SA1Request] {
-            sa1Request =>
-              submissionService.processSubmission(sa1Request, journeyId).map {
-                case Right(generatedId) =>
-                  logger.info(s"[SA1Controller][submitSA1] successfully submitted request - $generatedId")
-                  Accepted(Json.toJson(SA1Response(
+      case Some(journeyId) =>
+        withJsonBody[SA1Request] { sa1Request =>
+          submissionService.processSubmission(sa1Request, journeyId).map {
+            case Right(generatedId) =>
+              logger.info(s"[SA1Controller][submitSA1] successfully submitted request - $generatedId")
+              Accepted(
+                Json.toJson(
+                  SA1Response(
                     acknowledgementRef = generatedId,
-                    receivedTimestamp  = LocalDate.now()
-                  )))
-                case Left("NOT_FOUND") =>
-                  Conflict(Json.obj(
-                    "code" -> "NOT_FOUND",
-                    "message" -> "The request resource count not be found."
-                  ))
-                case Left(_) =>
-                  InternalServerError(Json.obj(
-                    "code" -> "INTERNAL_SERVER_ERROR",
-                    "message" -> "System error."
-                  ))
-              }
-          }.recover {
-            case ex: NoSuchElementException =>
-              logger.error("[SA1Controller][submitSA1] ex.getMessage")
-
-              NotFound(Json.toJson(
-              "code" -> "NOT_FOUND",
-              "message" -> ex.getMessage
-            ))
-            case ex: RuntimeException =>
-              logger.error("[SA1Controller][submitSA1] ex.getMessage")
-
-              InternalServerError(Json.obj(
-              "code" -> "INTERNAL_SERVER_ERROR",
-              "message" -> ex.getMessage
-            ))
+                    receivedTimestamp = LocalDate.now()
+                  )
+                )
+              )
+            case Left("NOT_FOUND")  =>
+              Conflict(
+                Json.obj(
+                  "code"    -> "NOT_FOUND",
+                  "message" -> "The request resource count not be found."
+                )
+              )
+            case Left(_)            =>
+              InternalServerError(
+                Json.obj(
+                  "code"    -> "INTERNAL_SERVER_ERROR",
+                  "message" -> "System error."
+                )
+              )
           }
-        case None =>
-          logger.error("[SA1Controller][submitSA1] The mandatory Journey_ID header is missing")
-          Future.successful(BadRequest(Json.obj(
-            "code" -> "MISSING Journey-ID",
-            "message" -> "The mandatory Journey-ID header is missing."
-          )))
-      }
+        }.recover {
+          case ex: NoSuchElementException =>
+            logger.error("[SA1Controller][submitSA1] ex.getMessage")
+
+            NotFound(
+              Json.toJson(
+                "code"    -> "NOT_FOUND",
+                "message" -> ex.getMessage
+              )
+            )
+          case ex: RuntimeException       =>
+            logger.error("[SA1Controller][submitSA1] ex.getMessage")
+
+            InternalServerError(
+              Json.obj(
+                "code"    -> "INTERNAL_SERVER_ERROR",
+                "message" -> ex.getMessage
+              )
+            )
+        }
+      case None            =>
+        logger.error("[SA1Controller][submitSA1] The mandatory Journey_ID header is missing")
+        Future.successful(
+          BadRequest(
+            Json.obj(
+              "code"    -> "MISSING Journey-ID",
+              "message" -> "The mandatory Journey-ID header is missing."
+            )
+          )
+        )
+    }
   }
 }

@@ -19,17 +19,19 @@ package uk.gov.hmrc.shortformsselfassessment.controllers
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.http.Status
-import play.api.test.Helpers._
+import play.api.mvc.Result
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 
-class MicroserviceHelloWorldControllerSpec
-  extends AnyWordSpec
-     with Matchers:
+import scala.concurrent.Future
+
+class MicroserviceHelloWorldControllerSpec extends AnyWordSpec with Matchers {
 
   private val fakeRequest = FakeRequest("GET", "/")
-  private val controller  = new MicroserviceHelloWorldController(Helpers.stubControllerComponents())
+  private val controller = new MicroserviceHelloWorldController(Helpers.stubControllerComponents())
 
-  "GET /" should:
-    "return 200" in:
-      val result = controller.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
+  "GET / return 200" in {
+    val result: Future[Result] = controller.hello()(fakeRequest)
+    status(result) shouldBe Status.OK
+  }
+}
