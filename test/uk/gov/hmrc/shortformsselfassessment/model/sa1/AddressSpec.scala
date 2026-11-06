@@ -20,7 +20,7 @@ import org.scalatest.matchers.must.Matchers.mustBe
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsSuccess, Json}
-import uk.gov.hmrc.shortformsselfassessment.models.sa1.{Address, format}
+import uk.gov.hmrc.shortformsselfassessment.models.sa1.Address
 
 class AddressSpec extends AnyWordSpec with Matchers {
 

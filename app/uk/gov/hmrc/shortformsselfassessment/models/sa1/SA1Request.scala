@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.shortformsselfassessment.models.sa1
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.*
 
-import java.time.LocalDate
+import java.time.{Instant, LocalDate}
 
 case class SA1Request(
   title2: Option[String] = None,
@@ -36,13 +36,13 @@ case class SA1Request(
   personCompletingForm: Option[String]
 )
 object SA1Request {
-  implicit val format: OFormat[SA1Request] = Json.format[SA1Request]
+  given Reads[SA1Request] = Json.reads
 }
 case class SA1Response(
   acknowledgementRef: String,
-  receivedTimestamp: LocalDate
+  receivedTimestamp: Instant
 )
 
 object SA1Response {
-  implicit val format: OFormat[SA1Response] = Json.format[SA1Response]
+  given OWrites[SA1Response] = Json.writes
 }

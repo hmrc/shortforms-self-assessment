@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.shortformsselfassessment.models.sa1
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.*
 
 case class Address(
   line1: String,
@@ -25,5 +25,6 @@ case class Address(
   postcode: String,
   country: Option[String] = None
 )
-object Address
-implicit val format: OFormat[Address] = Json.format[Address]
+object Address {
+  given Reads[Address] = Json.reads
+}

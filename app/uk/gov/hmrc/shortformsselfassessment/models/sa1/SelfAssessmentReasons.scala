@@ -34,6 +34,5 @@ case class SelfAssessmentReasons(
 )
 
 object SelfAssessmentReasons {
-  implicit val format: OFormat[SelfAssessmentReasons] = Json.format[SelfAssessmentReasons]
-
+  given Reads[SelfAssessmentReasons] = Json.reads
 }

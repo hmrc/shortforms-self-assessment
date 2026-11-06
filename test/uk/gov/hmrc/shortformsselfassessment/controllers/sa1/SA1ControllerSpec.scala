@@ -16,26 +16,18 @@
 
 package uk.gov.hmrc.shortformsselfassessment.controllers.sa1
 
-import org.mockito.ArgumentMatchers.{any, eq as mockEq}
-import org.mockito.Mockito.when
-import org.scalatest.matchers.must.Matchers.mustBe
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.shortformsselfassessment.models.sa1.SA1Request
-import uk.gov.hmrc.shortformsselfassessment.services.SA1SubmissionService
 
-import java.time.LocalDate
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import java.time.Instant
+import scala.math.Ordered.orderingToOrdered
 
 class SA1ControllerSpec extends PlaySpec with MockitoSugar {
 
-  val mockSubmissionService: SA1SubmissionService = mock[SA1SubmissionService]
-  val controller                                  = new SA1Controller(stubControllerComponents(), mockSubmissionService)
+  private val controller = new SA1Controller(stubControllerComponents())
 
   val validJsonBody: JsValue = Json.parse(
     """
@@ -63,70 +55,28 @@ class SA1ControllerSpec extends PlaySpec with MockitoSugar {
                  """
   )
   "SA1ControllerSpec" should {
-    "return 400 Bad Request when the Journey-Id header is missing" in {
-
-      val request                = FakeRequest("POST", "/submit")
+    "return 202 Accepted with a valid JSON and jouney id" in {
+      val request = FakeRequest("POST", "/submit")
         .withHeaders("Content-Type" -> "application/json")
         .withBody(validJsonBody)
-      val result: Future[Result] = controller.submitSA1()(request)
-
-      status(result) mustBe BAD_REQUEST
-      contentAsJson(result) mustBe Json.obj(
-        "code"    -> "MISSING Journey-ID",
-        "message" -> "The mandatory Journey-ID header is missing."
-      )
-    }
-
-    "return 202 Accepted with a valid JSON and jouney id" in {
-
-      val testJourneyId          = "test-jouney-id-12345"
-      val expectedGeneratedId    = "SA1-XYZ987"
-      val request                = FakeRequest("POST", "/submit")
-        .withHeaders("Content-Type" -> "application/json", "Journey-ID" -> testJourneyId)
-        .withBody(validJsonBody)
-      when(mockSubmissionService.processSubmission(any[SA1Request], mockEq(testJourneyId)))
-        .thenReturn(Future.successful(Right(expectedGeneratedId)))
-      val result: Future[Result] = controller.submitSA1()(request)
+      val result = controller.submitSA1()(request)
 
       status(result) mustBe ACCEPTED
       val jsonResult = contentAsJson(result)
-      (jsonResult \ "acknowledgementRef").as[String] mustBe expectedGeneratedId
-      (jsonResult \ "receivedTimestamp").as[LocalDate] mustBe LocalDate.now()
-    }
-
-    "return NOT_FOUND when a internal error" in {
-
-      val testJourneyId = "notfound-jouney-id-12345"
-
-      val request = FakeRequest("POST", "/submit")
-        .withHeaders("Content-Type" -> "application/json", "Journey-ID" -> testJourneyId)
-        .withBody(validJsonBody)
-
-      when(mockSubmissionService.processSubmission(any[SA1Request], mockEq(testJourneyId)))
-        .thenReturn(Future.successful(Left("NOT_FOUND")))
-
-      val result: Future[Result] = controller.submitSA1()(request)
-
-      status(result) mustBe CONFLICT
-      contentAsJson(result) mustBe Json.obj(
-        "code"    -> "NOT_FOUND",
-        "message" -> "The request resource count not be found."
-      )
+      (jsonResult \ "acknowledgementRef").as[String] must not be empty
+      assert((jsonResult \ "receivedTimestamp").as[Instant] < Instant.now())
     }
 
     "return 400 Bad Request for invalid Json" in {
-
-      val testJourneyId            = "invalid-jouney-id-12345"
       val invalidJsonBody: JsValue = Json.obj("brokenField" -> "Invalid structure")
 
       val request = FakeRequest("POST", "/submit")
-        .withHeaders("Content-Type" -> "application/json", "Journey-ID" -> testJourneyId)
+        .withHeaders("Content-Type" -> "application/json")
         .withBody(invalidJsonBody)
 
-      val result: Future[Result] = controller.submitSA1()(request)
+      val result = controller.submitSA1()(request)
 
       status(result) mustBe BAD_REQUEST
     }
-
   }
 }
