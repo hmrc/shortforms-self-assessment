@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.shortformsselfassessment.model.sa1
+package uk.gov.hmrc.shortformsselfassessment.models.sa1
 
-import org.scalatest.matchers.must.Matchers.mustBe
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsSuccess, Json}
-import uk.gov.hmrc.shortformsselfassessment.models.sa1.Address
 
-class AddressSpec extends AnyWordSpec with Matchers {
+class AddressSpec extends PlaySpec {
 
   "AddressSpec" should {
     "must parse a valid Address request" in {

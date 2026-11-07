@@ -21,7 +21,7 @@ import play.api.libs.json.*
 import java.time.{Instant, LocalDate}
 
 case class SA1Request(
-  title2: Option[String] = None,
+  title: Option[String] = None,
   firstName: String,
   lastName: String,
   previousLastName: Option[String],

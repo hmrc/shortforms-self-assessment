@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.shortformsselfassessment.model.sa1
+package uk.gov.hmrc.shortformsselfassessment.models.sa1
 
-import org.scalatest.matchers.must.Matchers.mustBe
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsError, JsSuccess, Json}
-import uk.gov.hmrc.shortformsselfassessment.models.sa1.{Address, SA1Request, SelfAssessmentReasons}
 
 import java.time.LocalDate
 
-class SA1RequestSpec extends AnyWordSpec with Matchers {
+class SA1RequestSpec extends PlaySpec {
 
-  "SA1ResponsePec" should {
-    "must parse a valid SA1Controller request" in {
+  "JSON Reads" should {
+    "parse a valid SA1Controller request" in {
       val json = Json.parse(
         """
                  {
-                    "title2" : "Mrs",
+                    "title" : "Mrs",
                     "firstName": "Sherlock",
                     "lastName": "Holmes",
                     "niNumber": "AA123456B",
@@ -56,7 +53,7 @@ class SA1RequestSpec extends AnyWordSpec with Matchers {
 
       json.validate[SA1Request] mustBe JsSuccess(
         SA1Request(
-          title2 = Some("Mrs"),
+          title = Some("Mrs"),
           firstName = "Sherlock",
           lastName = "Holmes",
           previousLastName = None,
