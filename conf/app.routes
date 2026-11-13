@@ -1,5 +1,3 @@
 # microservice specific routes
 
-GET        /hello-world             uk.gov.hmrc.shortformsselfassessment.controllers.MicroserviceHelloWorldController.hello
-
-POST      /self-assessment-forms/api/sa1     uk.gov.hmrc.shortformsselfassessment.controllers.sa1.SA1Controller.submitSA1()
+POST      /api/sa1     controllers.sa1.SA1Controller.submitSA1()

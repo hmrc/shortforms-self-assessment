@@ -14,37 +14,50 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.shortformsselfassessment.controllers.sa1
+package controllers.sa1
 
 import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import uk.gov.hmrc.shortformsselfassessment.models.sa1.{SA1Request, SA1Response}
+import uk.gov.hmrc.shortformsselfassessment.services.sa1.SA1XmlGenerator
 
-import java.time.Instant
+import java.time.{Instant, ZoneId, ZonedDateTime}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
-class SA1Controller @Inject()(cc: ControllerComponents) extends BackendController(cc) with Logging {
+class SA1Controller @Inject() (cc: ControllerComponents, submitterAction: SubmitterAction)
+    extends BackendController(cc)
+    with Logging {
+  private val SubmissionZone        = ZoneId.of("Europe/London")
+  private def getAcknowledgementRef = "SA1-" + java.util.UUID.randomUUID().toString.take(8).toUpperCase()
 
-  def submitSA1(): Action[JsValue] = Action.async(parse.json) { implicit request =>
+  def submitSA1(): Action[JsValue] = (Action andThen submitterAction).async(parse.json) { implicit request =>
     withJsonBody[SA1Request] { sa1Request =>
-      val acknowledgementRef = getAcknowledgementRef
-      logger.info(s"[SA1Controller][submitSA1] successfully submitted request - $acknowledgementRef")
-      Future.successful(
-        Accepted(
-          Json.toJson(
-            SA1Response(
-              acknowledgementRef = acknowledgementRef,
-              receivedTimestamp = Instant.now()
+      SA1XmlGenerator.generate(sa1Request, request.submitter, ZonedDateTime.now(SubmissionZone)) match {
+        case Left(_)  =>
+          logger.error("[SA1Controller][submitSA1] unable to generate a valid SA1 ShortForm submission")
+          Future.successful(
+            InternalServerError(
+              Json.obj("code" -> "SF-ERR-SYSERR", "message" -> "Unable to generate the SA1 submission")
             )
           )
-        )
-      )
+        case Right(_) =>
+          val acknowledgementRef = getAcknowledgementRef
+          logger.info(s"[SA1Controller][submitSA1] successfully submitted request - $acknowledgementRef")
+          Future.successful(
+            Accepted(
+              Json.toJson(
+                SA1Response(
+                  acknowledgementRef = acknowledgementRef,
+                  receivedTimestamp = Instant.now()
+                )
+              )
+            )
+          )
+      }
     }
   }
-
-  private def getAcknowledgementRef = "SA1-" + java.util.UUID.randomUUID().toString.take(8).toUpperCase()
 }
