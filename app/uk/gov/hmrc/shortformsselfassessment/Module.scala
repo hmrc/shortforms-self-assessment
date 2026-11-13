@@ -18,6 +18,8 @@ package uk.gov.hmrc.shortformsselfassessment
 
 import play.api.{Configuration, Environment}
 import play.api.inject.{Binding, Module => AppModule}
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.play.bootstrap.auth.DefaultAuthConnector
 
 import java.time.Clock
 
@@ -28,4 +30,5 @@ class Module extends AppModule:
     configuration: Configuration
   ): Seq[Binding[_]] =
     bind[Clock].toInstance(Clock.systemDefaultZone) :: // inject if current time needs to be controlled in unit tests
+      bind[AuthConnector].to[DefaultAuthConnector] ::
       Nil
