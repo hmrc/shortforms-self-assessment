@@ -34,8 +34,8 @@ object SA1XmlValidator {
   def validate(shortForm: Document): Either[String, Unit] = {
     val validator = schema.newValidator()
     validator.setErrorHandler(new ErrorHandler {
-      override def warning(e: SAXParseException): Unit = ()
-      override def error(e: SAXParseException): Unit = throw e
+      override def warning(e: SAXParseException): Unit    = ()
+      override def error(e: SAXParseException): Unit      = throw e
       override def fatalError(e: SAXParseException): Unit = throw e
     })
     Try(validator.validate(new DOMSource(shortForm))).toEither.left
