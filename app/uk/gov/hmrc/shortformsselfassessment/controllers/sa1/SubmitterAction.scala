@@ -22,8 +22,9 @@ import play.api.mvc.{ActionRefiner, Request, Result, Results, WrappedRequest}
 import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, NoActiveSession}
-import uk.gov.hmrc.http.{Authorization, HeaderCarrier}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.shortformsselfassessment.models.sa1.Submitter
 
 import javax.inject.{Inject, Singleton}
@@ -43,25 +44,20 @@ class SubmitterAction @Inject() (authConnector: AuthConnector)(implicit val exec
     def header(name: String): Option[String] = request.headers.get(name).map(_.trim).filter(_.nonEmpty)
 
     (header(AuthorisationHeader), header(SessionIdHeader)) match {
-      case (None, _)                      =>
+      case (None, _)                  =>
         Future.successful(Left(Results.Unauthorized(Json.obj("message" -> s"Missing $AuthorisationHeader header"))))
-      case (_, None)                      =>
+      case (_, None)                  =>
         Future.successful(Left(Results.BadRequest(Json.obj("message" -> s"Missing $SessionIdHeader header"))))
-      case (Some(token), Some(sessionId)) =>
-        authorise(token, sessionId, request)
+      case (Some(_), Some(sessionId)) =>
+        authorise(sessionId, request)
     }
   }
 
-  private def authorise[A](
-    token: String,
-    sessionId: String,
-    request: Request[A]
-  ): Future[Either[Result, SubmitterRequest[A]]] =
+  private def authorise[A](sessionId: String, request: Request[A]): Future[Either[Result, SubmitterRequest[A]]] = {
+    given HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+
     authConnector
-      .authorise(EmptyPredicate, Retrievals.credentials and Retrievals.affinityGroup)(
-        HeaderCarrier(authorization = Some(Authorization(token))),
-        executionContext
-      )
+      .authorise(EmptyPredicate, Retrievals.credentials and Retrievals.affinityGroup)
       .map[Either[Result, SubmitterRequest[A]]] {
         case Some(credentials) ~ affinityGroup =>
           val submitter = Submitter(credentials.providerId, sessionId, affinityGroup.map(_.toString))
@@ -69,8 +65,8 @@ class SubmitterAction @Inject() (authConnector: AuthConnector)(implicit val exec
         case None ~ _                          =>
           Left(Results.Forbidden(Json.obj("message" -> "No credentials available for the caller")))
       }
-      .recover[Either[Result, SubmitterRequest[A]]] {
-        case _: NoActiveSession        => Left(Results.Unauthorized(Json.obj("message" -> "No active session")))
-        case _: AuthorisationException => Left(Results.Forbidden(Json.obj("message" -> "Not authorised")))
+      .recover[Either[Result, SubmitterRequest[A]]] { case _: AuthorisationException =>
+        Left(Results.Forbidden(Json.obj("message" -> "Not authorised")))
       }
+  }
 }

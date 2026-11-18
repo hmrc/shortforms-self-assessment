@@ -20,7 +20,7 @@ import org.scalatestplus.play.PlaySpec
 import play.api.mvc.{Action, AnyContent, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.{AffinityGroup, NoActiveSession}
+import uk.gov.hmrc.auth.core.{AffinityGroup, InsufficientEnrolments}
 
 class SubmitterActionSpec extends PlaySpec {
 
@@ -62,10 +62,10 @@ class SubmitterActionSpec extends PlaySpec {
       status(handlerFor(new FakeAuthConnector())(request)) mustBe BAD_REQUEST
     }
 
-    "return 401 Unauthorized when the session is no longer active" in {
-      val authConnector = new FakeAuthConnector(failure = Some(new NoActiveSession("expired") {}))
+    "return 403 Forbidden when the caller is not authorised" in {
+      val authConnector = new FakeAuthConnector(failure = Some(new InsufficientEnrolments("missing") {}))
 
-      status(handlerFor(authConnector)(authorisedRequest)) mustBe UNAUTHORIZED
+      status(handlerFor(authConnector)(authorisedRequest)) mustBe FORBIDDEN
     }
 
     "return 403 Forbidden when the token carries no credentials" in {
