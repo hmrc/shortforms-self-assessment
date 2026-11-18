@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ShortForms.xsd
+  Describes a Short Form Submission (copied from shortform-backend, iForms channel).
+
+  Change History
+  v0.1 - 06/05/2014 - Initial version
+-->
+<xs:schema xmlns:sf="http://www.hmrc.gov.uk/iforms-channel/shortform/1" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.hmrc.gov.uk/iforms-channel/shortform/1" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0.1">
+	<xs:element name="ShortForm">
+		<xs:annotation>
+			<xs:documentation>XML Document that describes a Short Form Submission.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="MetaData">
+					<xs:annotation>
+						<xs:documentation>Additional Meta Data about the ShortForm submitted.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="WelshLanguage" type="xs:boolean">
+								<xs:annotation>
+									<xs:documentation>Boolean value identifying the Language the Short Form was presented in. e.g. false</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="Submitted_Date" type="xs:dateTime">
+								<xs:annotation>
+									<xs:documentation>The date the ShortForm was submitted.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="Session_ID" type="xs:string">
+								<xs:annotation>
+									<xs:documentation>The Session Identifier under which the submission was made.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="SubmittedData">
+					<xs:annotation>
+						<xs:documentation>Contains one or more Data Items that were submitted as part of the ShortForm</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="DataItem" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>A Data Item represents a single input value submitted as part of the ShortForm identified by the Name attribute.  e.g. for a Label of title2, DataItem value of Mr.</xs:documentation>
+								</xs:annotation>
+								<xs:complexType>
+									<xs:simpleContent>
+										<xs:extension base="xs:string">
+											<xs:attribute name="Name" type="xs:string" use="required">
+												<xs:annotation>
+													<xs:documentation>The Name of the DataItem represented on the Short Form.  e.g. title2</xs:documentation>
+												</xs:annotation>
+											</xs:attribute>
+										</xs:extension>
+									</xs:simpleContent>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="ShortForm_ID" use="required">
+				<xs:annotation>
+					<xs:documentation>Unique Identifier of the Form submitted.  e.g. SA1</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string"/>
+				</xs:simpleType>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

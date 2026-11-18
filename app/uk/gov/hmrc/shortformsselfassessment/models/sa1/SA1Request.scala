@@ -33,7 +33,8 @@ case class SA1Request(
   phone: String,
   email: String,
   reasons: SelfAssessmentReasons,
-  personCompletingForm: Option[String]
+  personCompletingForm: Option[String],
+  dateLastNameChanged: Option[LocalDate] = None
 )
 object SA1Request {
   given Reads[SA1Request] = Json.reads

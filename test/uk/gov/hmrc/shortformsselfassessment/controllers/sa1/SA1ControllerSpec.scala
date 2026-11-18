@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.shortformsselfassessment.controllers.sa1
+package controllers.sa1
 
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
@@ -27,7 +27,8 @@ import scala.math.Ordered.orderingToOrdered
 
 class SA1ControllerSpec extends PlaySpec with MockitoSugar {
 
-  private val controller = new SA1Controller(stubControllerComponents())
+  private val cc         = stubControllerComponents()
+  private val controller = new SA1Controller(cc, new SubmitterAction(new FakeAuthConnector())(cc.executionContext))
 
   val validJsonBody: JsValue = Json.parse(
     """
@@ -57,9 +58,13 @@ class SA1ControllerSpec extends PlaySpec with MockitoSugar {
   "SA1ControllerSpec" should {
     "return 202 Accepted with a valid JSON and jouney id" in {
       val request = FakeRequest("POST", "/submit")
-        .withHeaders("Content-Type" -> "application/json")
+        .withHeaders(
+          "Content-Type"                      -> "application/json",
+          SubmitterAction.AuthorisationHeader -> "Bearer gateway-token",
+          SubmitterAction.SessionIdHeader     -> "session-123"
+        )
         .withBody(validJsonBody)
-      val result = controller.submitSA1()(request)
+      val result  = controller.submitSA1()(request)
 
       status(result) mustBe ACCEPTED
       val jsonResult = contentAsJson(result)
@@ -67,11 +72,39 @@ class SA1ControllerSpec extends PlaySpec with MockitoSugar {
       assert((jsonResult \ "receivedTimestamp").as[Instant] < Instant.now())
     }
 
+    "return 400 Bad Request when the session ID header is missing" in {
+      val request = FakeRequest("POST", "/submit")
+        .withHeaders(
+          "Content-Type"                      -> "application/json",
+          SubmitterAction.AuthorisationHeader -> "Bearer gateway-token"
+        )
+        .withBody(validJsonBody)
+
+      val result = controller.submitSA1()(request)
+
+      status(result) mustBe BAD_REQUEST
+      (contentAsJson(result) \ "message").as[String] must include("X-Session-ID")
+    }
+
+    "return 401 Unauthorized when the Authorization header is missing" in {
+      val request = FakeRequest("POST", "/submit")
+        .withHeaders("Content-Type" -> "application/json")
+        .withBody(validJsonBody)
+
+      val result = controller.submitSA1()(request)
+
+      status(result) mustBe UNAUTHORIZED
+    }
+
     "return 400 Bad Request for invalid Json" in {
       val invalidJsonBody: JsValue = Json.obj("brokenField" -> "Invalid structure")
 
       val request = FakeRequest("POST", "/submit")
-        .withHeaders("Content-Type" -> "application/json")
+        .withHeaders(
+          "Content-Type"                      -> "application/json",
+          SubmitterAction.AuthorisationHeader -> "Bearer gateway-token",
+          SubmitterAction.SessionIdHeader     -> "session-123"
+        )
         .withBody(invalidJsonBody)
 
       val result = controller.submitSA1()(request)
