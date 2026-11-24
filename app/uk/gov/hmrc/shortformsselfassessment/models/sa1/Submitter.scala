@@ -14,20 +14,6 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.shortformsselfassessment.controllers
+package uk.gov.hmrc.shortformsselfassessment.models.sa1
 
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
-
-@Singleton()
-class MicroserviceHelloWorldController @Inject() (
-  cc: ControllerComponents
-) extends BackendController(cc):
-   def hello: Action[AnyContent] = Action.async { implicit request =>
-      Future.successful(Ok("Hello world"))
-      }
-
-
+final case class Submitter(credentialId: String, sessionId: String, affinityGroup: Option[String])
