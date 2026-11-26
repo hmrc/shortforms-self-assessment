@@ -17,7 +17,6 @@
 package uk.gov.hmrc.shortformsselfassessment.services.sa1
 
 import org.w3c.dom.{Document, Element}
-import play.api.Logging
 import uk.gov.hmrc.shortformsselfassessment.models.sa1.{SA1Request, Submitter}
 import uk.gov.hmrc.shortformsselfassessment.utils.DateTimeFormats
 
@@ -31,7 +30,7 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 import javax.xml.transform.{OutputKeys, TransformerFactory}
 
-object SA1XmlGenerator extends Logging {
+object SA1XmlGenerator {
 
   private val EnvelopeNamespace  = "http://www.hmrc.gov.uk/iforms-channel/submission/envelope/request/1"
   private val ShortFormNamespace = "http://www.hmrc.gov.uk/iforms-channel/shortform/1"
@@ -50,11 +49,8 @@ object SA1XmlGenerator extends Logging {
   def generate(request: SA1Request, submitter: Submitter, submittedAt: ZonedDateTime): Either[String, String] = {
     val shortForm = shortFormDocument(request, submitter.sessionId, submittedAt)
     SA1XmlValidator.validate(shortForm).map { _ =>
-      // Temporary validation logging: the XML contains personal data, so remove before merging.
       val xml = envelopeXml(shortForm, submitter.credentialId, submittedAt, submitterUserType(submitter.affinityGroup))
-      logger.info(s"[SA1XmlGenerator][generate] generated SA1 XML payload:\n$xml")
       xml
-      // TODO:
     }
   }
 
