@@ -35,7 +35,7 @@ class IFormSubmissionConnectorISpec extends PlaySpec with GuiceOneAppPerSuite wi
     GuiceApplicationBuilder()
       .configure(
         "microservice.services.iforms-submission.port" -> wireMockPort,
-        "iforms.submission.read-timeout"               -> "5 seconds"
+        "microservice.services.iforms-submission.read-timeout" -> "5 seconds"
       )
       .build()
 

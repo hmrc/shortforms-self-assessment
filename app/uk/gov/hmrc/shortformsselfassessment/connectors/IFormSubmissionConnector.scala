@@ -74,7 +74,7 @@ class IFormSubmissionConnector @Inject() (
     extends Logging {
 
   private val baseUrl         = servicesConfig.baseUrl("iforms-submission")
-  private val readTimeout     = configuration.get[FiniteDuration]("iforms.submission.read-timeout")
+  private val readTimeout     = configuration.get[FiniteDuration]("microservice.services.iforms-submission.read-timeout")
   private val envelopeVersion = "1"
 
   def submit(formName: String, xml: String): Future[Either[IFormSubmissionError, IFormAcknowledgement]] = {
