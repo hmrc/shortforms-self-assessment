@@ -71,7 +71,7 @@ class SA1ControllerSpec extends PlaySpec with MockitoSugar {
           SubmitterAction.SessionIdHeader     -> "session-123"
         )
         .withBody(validJsonBody)
-      when(iFormSubmission.submit(anyString(), anyString()))
+      when(iFormSubmission.submit(anyString()))
         .thenReturn(
           Future.successful(Right(IFormAcknowledgement("ACK-123", Instant.parse("2026-11-13T14:54:23.038Z"))))
         )
@@ -91,7 +91,7 @@ class SA1ControllerSpec extends PlaySpec with MockitoSugar {
           SubmitterAction.SessionIdHeader     -> "session-123"
         )
         .withBody(validJsonBody)
-      when(iFormSubmission.submit(anyString(), anyString()))
+      when(iFormSubmission.submit(anyString()))
         .thenReturn(Future.successful(Left(IFormSubmissionError.UnexpectedStatus(500, "boom"))))
 
       val result = controller.submitSA1()(request)
@@ -108,7 +108,7 @@ class SA1ControllerSpec extends PlaySpec with MockitoSugar {
           SubmitterAction.SessionIdHeader     -> "session-123"
         )
         .withBody(validJsonBody)
-      when(iFormSubmission.submit(anyString(), anyString()))
+      when(iFormSubmission.submit(anyString()))
         .thenReturn(Future.successful(Left(IFormSubmissionError.NoResponse(new RuntimeException("timeout")))))
 
       val result = controller.submitSA1()(request)
