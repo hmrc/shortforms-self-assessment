@@ -11,7 +11,7 @@ object AppDependencies {
 
   val test: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"             %% "bootstrap-test-play-30"     % bootstrapVersion            % Test,
-    "org.scalatestplus"       %% "scalacheck-1-17"         % "3.2.18.0"
+    "org.scalatestplus"       %% "scalacheck-1-17"         % "3.2.18.0"                  % Test
   )
 
   val it: Seq[ModuleID] = Seq.empty
