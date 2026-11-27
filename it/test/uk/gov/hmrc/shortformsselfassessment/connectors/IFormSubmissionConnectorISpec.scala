@@ -34,13 +34,14 @@ class IFormSubmissionConnectorISpec extends PlaySpec with GuiceOneAppPerSuite wi
   override def fakeApplication(): Application =
     GuiceApplicationBuilder()
       .configure(
+        "microservice.services.iforms-submission.protocol" -> "http",
+        "microservice.services.iforms-submission.host" -> "localhost",
         "microservice.services.iforms-submission.port" -> wireMockPort,
         "microservice.services.iforms-submission.read-timeout" -> "5 seconds"
       )
       .build()
 
-  private val formName          = "nps-shortform-l"
-  private val submitUrl         = s"/iforms-channel/form/$formName/version/1"
+  private val submitUrl         = "/iforms-channel/form/nps-shortform-i/version/1"
   private val xml               = "<SA1>payload</SA1>"
   private val receivedTimestamp = Instant.parse("2026-11-13T14:54:23.038Z")
   private val validEnvelope     =
@@ -52,7 +53,7 @@ class IFormSubmissionConnectorISpec extends PlaySpec with GuiceOneAppPerSuite wi
   private lazy val connector = app.injector.instanceOf[IFormSubmissionConnector]
 
   private def submit(): Either[IFormSubmissionError, IFormAcknowledgement] =
-    Await.result(connector.submit(formName, xml), 10.seconds)
+    Await.result(connector.submit(xml), 10.seconds)
 
   "IFormSubmissionConnector" should {
     "send the XML with the iForms headers and return the acknowledgement for a 200 response" in {

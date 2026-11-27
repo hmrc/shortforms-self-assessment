@@ -38,7 +38,6 @@ class SA1Controller @Inject() (
     extends BackendController(cc)
     with Logging {
   private val SubmissionZone = ZoneId.of("Europe/London")
-  private val SA1FormName    = "nps-shortform-l"
 
   def submitSA1(): Action[JsValue] = (Action andThen submitterAction).async(parse.json) { implicit request =>
     withJsonBody[SA1Request] { sa1Request =>
@@ -57,7 +56,7 @@ class SA1Controller @Inject() (
             )
           )
         case Right(xml) =>
-          iFormSubmissionConnector.submit(SA1FormName, xml).map {
+          iFormSubmissionConnector.submit(xml).map {
             case Right(acknowledgement) =>
               logger.info(
                 s"[SA1Controller][submitSA1] successfully submitted request - ${acknowledgement.acknowledgementRef}"

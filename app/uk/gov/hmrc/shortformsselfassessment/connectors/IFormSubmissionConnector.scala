@@ -77,8 +77,8 @@ class IFormSubmissionConnector @Inject() (
   private val readTimeout     = configuration.get[FiniteDuration]("microservice.services.iforms-submission.read-timeout")
   private val envelopeVersion = "1"
 
-  def submit(formName: String, xml: String): Future[Either[IFormSubmissionError, IFormAcknowledgement]] = {
-    val url = url"$baseUrl/iforms-channel/form/$formName/version/$envelopeVersion"
+  def submit(xml: String): Future[Either[IFormSubmissionError, IFormAcknowledgement]] = {
+    val url = url"$baseUrl/iforms-channel/form/nps-shortform-i/version/$envelopeVersion"
     httpClient
       .post(url)(HeaderCarrier())
       .transform(_.withRequestTimeout(readTimeout))
@@ -96,7 +96,7 @@ class IFormSubmissionConnector @Inject() (
         }
       }
       .recover { case NonFatal(e) =>
-        logger.error(s"[IFormSubmissionConnector][submit] no response from iForms for form $formName", e)
+        logger.error(s"[IFormSubmissionConnector][submit] no response from iForms", e)
         Left(IFormSubmissionError.NoResponse(e))
       }
   }
